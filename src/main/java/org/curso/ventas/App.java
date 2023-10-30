@@ -9,6 +9,8 @@ public class App
 {
     public static void main(String[] args)
     {
+
+
         Archivo_Estante archivo = new Archivo_Estante("src\\main\\java\\Source\\productos.txt");
         while (true)
         {
@@ -26,9 +28,12 @@ public class App
                         throw  new RuntimeException();
                     } catch (InformarMontoMinimo e) {
                         throw new RuntimeException();
-                    } catch (Exception e)
-                    {
-                        System.out.println("otro error");
+                    } catch (InformarCarrito0 e) {
+                        throw new RuntimeException();
+                    } catch (InformarMontoNegativo e) {
+                        throw new RuntimeException();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                     break;
             }
@@ -41,17 +46,19 @@ public class App
         Scanner sc = new Scanner(System.in);
         System.out.print(
                 "--------- MENU CARRITO ---------\n"
-                        + "1. Cargar Estante.\n"
-                        + "2. Mostrar Estante.\n"
-                        + "3. Cargar Carrito.\n"
-                        + "Opcion: ");
+                + "1. Cargar Estante.\n"
+                + "2. Mostrar Estante.\n"
+                + "3. Cargar Carrito.\n"
+                + "Opcion: ");
         op = sc.nextInt();
         return op;
     }
 
     public static void Comprar() throws
             InformarProductoNoExistente,
-            InformarMontoMinimo
+            InformarMontoMinimo,
+            InformarMontoNegativo,
+            InformarCarrito0
     {
         Scanner sc = new Scanner(System.in);
 
@@ -62,7 +69,6 @@ public class App
 
         while(op == 1)
         {
-
             System.out.print("Ingrese un producto: ");
             String nombre = sc.nextLine();
             System.out.print("Ingrese cantidad: ");
@@ -76,34 +82,37 @@ public class App
 
                 try
                 {
-                    System.out.println(auxItem.getProducto().getPrecio());
                     if (auxItem.getProducto().getPrecio() == -1)
                     {
                         throw new InformarProductoNoExistente();
                     }
+
                 }catch (InformarProductoNoExistente e)
                 {
                     System.out.println("El producto no existe");
                 } catch (Exception e)  {
                     e.printStackTrace();
-
-                }
-                finally {
+                }finally {
                     car.setItem(auxItem);
-
                 }
 
             }
 
             System.out.println("Seguir agregando productos(ingrese 1): ");
             op = sc.nextInt();
+            sc.nextLine();
         }
         if( car.contarLista() == 0)
         {
-            System.out.println("No se encontraron productos cargados.");
-        } else
+            throw new InformarCarrito0();
+        }
+        if ((car.precio(1) +  car.precio(2)) < 10 )
         {
-            car.precio();
+            throw new InformarMontoNegativo();
+        }
+        {
+            System.out.println("El costo final es $" +
+                    (car.precio(1) +  car.precio(2)));
         }
 
 

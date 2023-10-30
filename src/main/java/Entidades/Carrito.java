@@ -4,8 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import Entidades.ItemCarrito;
-
 public class Carrito {
 	
 	private LocalDate fecha;
@@ -13,7 +11,7 @@ public class Carrito {
 	public Carrito() 
 	{
 		this.fecha = LocalDate.now();
-		List<ItemCarrito> items = new ArrayList<ItemCarrito>();
+		this.items = new ArrayList<ItemCarrito>();
 	}
 	public LocalDate getFecha() {
 	    return fecha;
@@ -26,28 +24,48 @@ public class Carrito {
 		items1.addAll(this.items);
 		return items1;
 	}
-	public void setItem(ItemCarrito ic) { this.items.add(ic);
-		System.out.println("hola");}
+	public void setItem(ItemCarrito ic)
+	{
+		this.items.add(ic);
+	}
 	public void quitarItem(ItemCarrito ic) { this.items.remove(ic); }
-	public double precio()
+	public double precio(int archivo)
 	{
 		String desc_fijo = "src\\main\\java\\Source\\descuento_fijo.txt";
-		String desc_procentaje = "src\\main\\java\\Source\\descuento_procentaje.txt";
+		String desc_procentaje = "src\\main\\java\\Source\\descuento_porcentaje.txt";
 
 		Double costoFinal = 0.0;
+		double precio_desc = 0.0;
 		for(ItemCarrito item : this.items) {
-			Archivo_Descuentos arc_descuento = new Archivo_Descuentos(desc_fijo);
-			double precio_desc = item.getProducto().getPrecio();
+
+			Archivo_Descuentos arc_descuento;
+			if(archivo == 1)
+			{
+				arc_descuento = new Archivo_Descuentos(desc_fijo);
+			} else
+			{
+				arc_descuento = new Archivo_Descuentos(desc_procentaje);
+			}
+
 
 			if(arc_descuento.ObtenerDescuento(item.getProducto().getNombre()) > 0)
 			{
-				precio_desc = arc_descuento.ObtenerDescuento(item.getProducto().getNombre());
-				System.out.println("Descuento a $" + precio_desc);
+				if(archivo == 1)
+				{
+					precio_desc +=
+						item.getProducto().getPrecio() -
+ 						arc_descuento.ObtenerDescuento(item.getProducto().getNombre());
+				} else
+				{
+					precio_desc +=
+							item.getProducto().getPrecio() -
+							item.getProducto().getPrecio() *
+							arc_descuento.ObtenerDescuento(item.getProducto().getNombre());
+				}
 			}
-
 			costoFinal += precio_desc * item.getCantidad();
 		}
-		System.out.println("precio final: " + costoFinal);
+
 		return costoFinal;
 	}
 
